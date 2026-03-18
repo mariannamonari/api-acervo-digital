@@ -266,7 +266,7 @@ class Aluno {
             // Query SQL de inserção — os "$1", "$2"... são placeholders substituídos pelos valores reais
             // "RETURNING id_aluno" faz o banco retornar o ID gerado automaticamente após o INSERT
             const queryInsertAluno = `INSERT INTO Aluno (nome, sobrenome, data_nascimento, endereco, email, celular)
-                                            VALUES ('$1','$2','$3','$4','$5','$6') RETURNING id_aluno;`;
+                                            VALUES ($1,$2,$3,$4,$5,$6) RETURNING id_aluno;`;
 
             // Executa a query passando os valores do objeto aluno
             // .toUpperCase() converte texto para maiúsculas; .toLowerCase() converte para minúsculas
@@ -356,12 +356,12 @@ class Aluno {
                 // Query SQL de atualização — cada campo recebe um placeholder "$n"
                 // O WHERE garante que só o aluno com o ID correto seja atualizado
                 const queryAtualizarAluno = `UPDATE Aluno SET 
-                                                    nome = '$1', 
-                                                    sobrenome = '$2',
-                                                    data_nascimento = '$3', 
-                                                    endereco = '$4',
-                                                    celular = '$5', 
-                                                    email = '$6'                                            
+                                                    nome = $1, 
+                                                    sobrenome = $2,
+                                                    data_nascimento = $3, 
+                                                    endereco = $4,
+                                                    celular = $5, 
+                                                    email = $6                                            
                                                 WHERE id_aluno = $7`;
 
                 // Executa a query de atualização com os valores do objeto aluno recebido
