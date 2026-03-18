@@ -163,51 +163,77 @@ class Aluno {
      */
     // "async" indica que este método é assíncrono — ele pode "esperar" por operações demoradas (como banco de dados)
     // Retorna uma Promise que, quando resolvida, contém um Array de AlunoDTO ou null
-    static async listarAlunos(): Promise<Array<AlunoDTO> | null> {
-        // Cria uma lista vazia que vai receber os alunos encontrados no banco
-        let listaDeAlunos: Array<AlunoDTO> = [];
 
-        try {
-            // Bloco try: tenta executar o código; se algo der errado, vai para o catch
 
-            // Define a query SQL que busca todos os alunos ativos no banco de dados
-            const querySelectAluno = `SELECT * FROM Aluno WHERE status_aluno = TRUE;`;
+   /**
+ * Lista todos os alunos ativos no banco de dados.
+ *
+ * Padrão utilizado: DTO (Data Transfer Object)
+ * O DTO serve para trafegar apenas os dados necessários entre camadas da aplicação,
+ * sem expor a estrutura interna das entidades do banco.
+ *
+ * @returns Promise com um array de AlunoDTO em caso de sucesso, ou null em caso de erro.
+ */
+static async listarAlunos(): Promise<AlunoDTO[] | null> {
+  try {
+    // ✅ MELHORIA 1: Query parametrizada e com SELECT explícito
+    // Em vez de SELECT *, listamos apenas as colunas necessárias.
+    // Isso evita trafegar dados desnecessários e protege contra colunas futuras inesperadas.
+    // O uso de parâmetros ($1, $2...) previne SQL Injection — aqui não há parâmetro variável,
+    // mas já adotamos a estrutura correta como boa prática.
+    const query = `
+      SELECT
+        id_aluno,
+        ra,
+        nome,
+        sobrenome,
+        data_nascimento,
+        endereco,
+        email,
+        celular,
+        status_aluno
+      FROM aluno
+      WHERE status_aluno = TRUE
+      ORDER BY nome ASC
+    `;
 
-            // Executa a query no banco de dados e aguarda o resultado
-            // "await" pausa a execução aqui até o banco responder
-            const respostaBD = await database.query(querySelectAluno);
+    // Executa a query no banco de dados e aguarda o resultado.
+    // "await" pausa a execução aqui até o banco responder — isso é programação assíncrona.
+    const respostaBD = await database.query(query);
 
-            // Percorre cada linha retornada pelo banco de dados
-            // "aluno" é o apelido dado a cada linha individual retornada
-            respostaBD.rows.forEach((aluno: any) => {
+    // ✅ MELHORIA 2: Substitui forEach + push por map()
+    // O map() é mais idiomático e eficiente para transformar arrays.
+    // Ele já retorna um novo array mapeado, sem precisar criar uma lista vazia manualmente.
+   // ✅ CORRETO: usa "any" no parâmetro do map para aceitar o retorno bruto do banco,
+// mas mantém a tipagem forte AlunoDTO[] no array final.
+// O banco de dados retorna um objeto genérico — não é garantido que ele seja um AlunoDTO válido.
+// Por isso, usamos "any" aqui e fazemos o mapeamento manual campo a campo.
+const listaDeAlunos: AlunoDTO[] = respostaBD.rows.map((aluno: any) => ({
+  id_aluno:        aluno.id_aluno,
+  ra:              aluno.ra,
+  nome:            aluno.nome,
+  sobrenome:       aluno.sobrenome,
+  data_nascimento: aluno.data_nascimento,
+  endereco:        aluno.endereco,
+  email:           aluno.email,
+  celular:         aluno.celular,
+  status_aluno:    aluno.status_aluno,
+}));
 
-                // Cria um objeto AlunoDTO com os dados de cada linha do banco
-                // AlunoDTO é apenas um objeto simples de dados (sem métodos), diferente da classe Aluno
-                const alunoDTO: AlunoDTO = {
-                    id_aluno: aluno.id_aluno,               // ID do aluno
-                    ra: aluno.ra,                           // Registro Acadêmico
-                    nome: aluno.nome,                       // Nome
-                    sobrenome: aluno.sobrenome,             // Sobrenome
-                    data_nascimento: aluno.data_nascimento, // Data de nascimento
-                    endereco: aluno.endereco,               // Endereço
-                    email: aluno.email,                     // E-mail
-                    celular: aluno.celular,                 // Celular
-                    status_aluno: aluno.status_aluno        // Status ativo/inativo
-                };
+    // Retorna a lista de alunos montada com sucesso.
+    return listaDeAlunos;
 
-                // Adiciona o objeto AlunoDTO à lista
-                listaDeAlunos.push(alunoDTO);
-            });
+  } catch (error) {
+    // ✅ MELHORIA 4: Usa console.error em vez de console.log para erros
+    // console.error envia a mensagem para o fluxo de erro padrão (stderr),
+    // o que é importante para ferramentas de monitoramento e logs de produção.
+    console.error(`[AlunoModel] Erro ao listar alunos:`, error);
 
-            // Retorna a lista com todos os alunos encontrados
-            return listaDeAlunos;
-        } catch (error) {
-            // Se ocorrer qualquer erro durante a consulta, exibe no console para facilitar o debug
-            console.log(`Erro ao acessar o modelo: ${error}`);
-            // Retorna null para indicar que houve falha
-            return null;
-        }
-    }
+    // Retorna null para sinalizar à camada superior que a operação falhou.
+    // A camada do Controller deverá tratar esse null e retornar o status HTTP adequado (ex: 500).
+    return null;
+  }
+}
 
     /**
      * Retorna as informações de um aluno informado pelo ID
@@ -361,7 +387,7 @@ class Aluno {
                                                     data_nascimento = $3, 
                                                     endereco = $4,
                                                     celular = $5, 
-                                                    email = $6                                            
+                                                    email = $6                                           
                                                 WHERE id_aluno = $7`;
 
                 // Executa a query de atualização com os valores do objeto aluno recebido
