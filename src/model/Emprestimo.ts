@@ -197,7 +197,7 @@ class Emprestimo {
             console.error(`Erro ao buscar empréstimo (ID: ${id_emprestimo}): ${error}`);
             return null;
         }
-        
+
     }
 
     /**
@@ -243,6 +243,7 @@ class Emprestimo {
             console.error(`Erro ao cadastrar empréstimo: ${error}`);
             return false;
         }
+        
     }
 
     /**
