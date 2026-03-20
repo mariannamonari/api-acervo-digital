@@ -168,53 +168,28 @@ class Livro {
      * @returns Lista com todos os livros cadastrados no banco de dados
      */
     // Método assíncrono que busca todos os livros ativos e retorna uma lista de LivroDTO ou null
-    static async listarLivros(): Promise<Array<LivroDTO> | null> {
-        // Cria uma lista vazia que vai receber os livros encontrados no banco
-        let listaDeLivros: Array<LivroDTO> = [];
-
+     static async listarLivros(): Promise<Array<LivroDTO> | null> {
         try {
-            // Query SQL que busca todos os livros com status ativo (status_livro = TRUE)
-            // Livros com status FALSE foram removidos logicamente e não devem aparecer
-            const querySelectLivro = `SELECT * FROM Livro WHERE status_livro = TRUE;`;
-
+            // Query SQL que busca todos os livros com status ativo (status_livro = TRUE).
+            // Livros com status FALSE foram removidos logicamente e não devem aparecer na listagem.
+            const querySelectLivros = `SELECT * FROM Livro WHERE status_livro = TRUE;`;
+ 
             // Executa a query no banco de dados e aguarda o resultado
-            const respostaBD = await database.query(querySelectLivro);
-
-            // Percorre cada linha retornada pelo banco de dados
-            // "livro" é o apelido dado a cada registro individual retornado
-            respostaBD.rows.forEach((livro) => {
-                // Monta o objeto LivroDTO com os dados da linha atual
-                // LivroDTO é um objeto simples de dados (sem métodos), diferente da classe Livro
-                const livroDTO: LivroDTO = {
-                    id_livro: livro.id_livro,                           // ID do livro
-                    titulo: livro.titulo,                               // Título
-                    autor: livro.autor,                                 // Autor
-                    editora: livro.editora,                             // Editora
-                    ano_publicacao: livro.ano_publicacao,               // Ano de publicação
-                    isbn: livro.isbn,                                   // ISBN
-                    quant_total: livro.quant_total,                     // Quantidade total
-                    quant_disponivel: livro.quant_disponivel,           // Quantidade disponível
-                    quant_aquisicao: livro.quant_aquisicao,             // Quantidade de aquisição
-                    valor_aquisicao: livro.valor_aquisicao,             // Valor de aquisição
-                    status_livro_emprestado: livro.status_livro_emprestado, // Status de empréstimo
-                    status_livro: livro.status_livro                    // Status ativo/inativo
-                };
-
-                // Adiciona o objeto LivroDTO à lista
-                listaDeLivros.push(livroDTO);
-            });
-
-            // Retorna a lista com todos os livros encontrados
-            return listaDeLivros;
-
+            const respostaBD = await database.query(querySelectLivros);
+ 
+            // Se não houver nenhum livro ativo, retorna null em vez de uma lista vazia
+            if (respostaBD.rows.length === 0) return null;
+ 
+            // Usa .map() para transformar cada linha do banco em um LivroDTO.
+            // .map() é preferível ao forEach() aqui porque retorna um novo array diretamente,
+            // eliminando a necessidade de uma variável auxiliar e de chamadas .push().
+            return respostaBD.rows.map(Livro.mapRowToDTO);
+ 
         } catch (error) {
-            // Se ocorrer qualquer erro durante a consulta, exibe no console para facilitar o debug
-            console.log(`Erro ao acessar o modelo: ${error}`);
-            // Retorna null para indicar que houve falha
+            console.error(`Erro ao listar livros: ${error}`);
             return null;
         }
     }
-
     /**
      * Retorna as informações de um livro informado pelo ID
      * 
