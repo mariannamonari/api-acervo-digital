@@ -1,7 +1,7 @@
 GET http://localhost:3333/api/emprestimos
 
 ###
-GET http://localhost:3333/api/emprestimos/30
+GET http://localhost:3333/api/emprestimos/3
 
 ###
 POST http://localhost:3333/api/emprestimos
