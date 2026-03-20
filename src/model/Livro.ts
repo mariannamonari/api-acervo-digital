@@ -333,7 +333,7 @@ class Livro {
             return false;
         }
     }
-
+ 
     /**
      * Atualiza os dados de um livro no banco de dados.
      * @param livro Objeto do tipo Livro com os novos dados
