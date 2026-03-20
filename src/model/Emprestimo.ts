@@ -165,7 +165,10 @@ class Emprestimo {
             // Retorna null para indicar que houve falha
             return null;
         }
+
+        
     }
+
 
     /**
      * Retorna as informações de um único empréstimo identificado pelo ID.
