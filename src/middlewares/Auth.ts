@@ -4,7 +4,7 @@ import { type Request, type Response, type NextFunction } from 'express';
 import { DatabaseModel } from '../model/DatabaseModel.js';
 
 // palavra secreta
-const SECRET = 'bananinha';
+const SECRET = 'AcervoDigital@2026';
 // pool de conexão ao banco de dados
 const database = new DatabaseModel().pool;
 
@@ -32,15 +32,8 @@ export class Auth {
      * @returns Token de autenticação caso o usuário seja válido, mensagem de login não autorizado caso negativo
      */
     static async validacaoUsuario(req: Request, res: Response): Promise<any> {
-
         // recupera informações do corpo da requisição
         const { email, senha } = req.body;
-
-        if (!email.toLowerCase().endsWith('@adigital.com.br')) {
-            return res.status(400).json({
-                message: "Acesso permitido apenas para e-mails @adigital.com.br"
-            });
-        }// validação para permitir apenas logins com email @adigital.com.br 
 
         // query para validar email e senha informados pelo cliente
         const querySelectUser = `SELECT id_usuario, nome, email, senha, role FROM usuarios WHERE email=$1 AND senha=$2;`;
@@ -68,7 +61,7 @@ export class Auth {
                 return res.status(200).json({ auth: true, token: tokenUsuario, usuario: usuario });
             } else {
                 // caso a autenticação não tenha sido bem sucedida, é retornado ao cliente o statu de autenticação (falso), um token nulo e a mensagem de falha
-                return res.status(401).json({ auth: false, token: null, message: "Email e/ou senha incorretos" });
+                return res.status(401).json({ auth: false, token: null, message: "Usuário e/ou senha incorretos" });
             }
             // verifica possíveis erros durante a requisição
         } catch (error) {
