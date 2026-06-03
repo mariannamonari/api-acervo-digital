@@ -118,8 +118,6 @@ class EmprestimoController extends Emprestimo {
                 dadosRecebidos.aluno.id_aluno,             // Novo ID do aluno
                 dadosRecebidos.livro.id_livro,             // Novo ID do livro
                 new Date(dadosRecebidos.data_emprestimo),  // Nova data de empréstimo convertida para Date
-                // Se data_devolucao foi informada, converte para Date; senão usa a data atual como fallback
-                // ⚠️ Diferença do cadastrar: aqui usa new Date() (data atual) ao invés de undefined
                 dadosRecebidos.data_devolucao ? new Date(dadosRecebidos.data_devolucao) : new Date(),
                 dadosRecebidos.status_emprestimo ?? ""     // Novo status — usa string vazia se não informado
             );

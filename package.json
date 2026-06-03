@@ -1,7 +1,7 @@
 {
   "name": "api-acervo-digital",
   "version": "1.0.0",
-  "description": "",
+  "description": "**Acervo Digital** é um projeto educacional desenvolvido para ensinar\r conceitos avançados de **programação web back-end** para alunos do\r ensino médio.",
   "main": "index.js",
   "type": "module",
   "scripts": {
@@ -25,5 +25,13 @@
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
     "pg": "^8.20.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mariannamonari/api-acervo-digital.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mariannamonari/api-acervo-digital/issues"
+  },
+  "homepage": "https://github.com/mariannamonari/api-acervo-digital#readme"
 }
